@@ -1,0 +1,13 @@
+{
+  "files.exclude": {
+    "**/node_modules": true,
+    "dist": true,
+    ".local": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "dist": true,
+    ".local": true,
+    "tests/fixtures": true
+  }
+}

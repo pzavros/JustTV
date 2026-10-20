@@ -1,0 +1,140 @@
+{
+  "description": "Explicit ES module entries with a stable TV initialization order. State-object accesses are resolved to the existing local bindings during linking.",
+  "bundles": {
+    "app.js": {
+      "parameter": "browser",
+      "aliases": {
+        "browser": "w",
+        "strings": "S",
+        "platform": "P",
+        "byId": "$",
+        "homeFocus": "home",
+        "activeProfile": "profile",
+        "preferences": "store",
+        "activeOverlay": "overlay",
+        "overlayStack": "stack",
+        "focusedElement": "focused",
+        "lastRenderedLevel": "lastLevel",
+        "lastActiveRow": "lastActive",
+        "sceneQuality": "quality",
+        "performanceMetrics": "metrics",
+        "launchInProgress": "busy",
+        "canvasScale": "scale",
+        "preferencesSaveTimer": "saveTimer",
+        "lastBackAt": "backAt",
+        "platformRefreshTimer": "refreshTimer",
+        "escapeHtml": "esc",
+        "renderIcon": "ico",
+        "loadPreferences": "load",
+        "schedulePreferencesSave": "save",
+        "fitCanvas": "fit",
+        "appBrand": "brand",
+        "systemSettingTile": "setting",
+        "renderHome": "render",
+        "updateLayout": "layout",
+        "launchApp": "launch",
+        "applyMotionPreferences": "motion",
+        "updateClock": "clock",
+        "handleVisibilityChange": "resume",
+        "handleKeyDown": "keydown",
+        "handleKeyUp": "keyup",
+        "renderTileMarkup": "tileHtml",
+        "buildHomeRows": "makeRows",
+        "listAllApps": "allApps",
+        "listFavoriteApps": "favApps",
+        "listSourceTiles": "sourceItems",
+        "openMenu": "menu",
+        "showMessage": "message",
+        "closeAllOverlays": "closeAll",
+        "handleLaunchResult": "onLaunch",
+        "handleSettingsResult": "onSettings",
+        "handleVolumeResult": "onVolume",
+        "getSourceName": "sourceName",
+        "showToast": "toast",
+        "getSceneMode": "sceneMode",
+        "describeWeatherCondition": "condition",
+        "formatDateText": "dateText",
+        "controlButton": "b",
+        "tile": "it",
+        "rowIndex": "r",
+        "tileIndex": "i"
+      },
+      "order": [
+        "src/launcher/environment.js",
+        "src/launcher/state.js",
+        "src/launcher/views/html.js",
+        "src/launcher/preferences.js",
+        "src/launcher/presentation.js",
+        "src/launcher/catalogue.js",
+        "src/launcher/home-model.js",
+        "src/launcher/views/tiles.js",
+        "src/launcher/views/home.js",
+        "src/launcher/focus.js",
+        "src/launcher/actions.js",
+        "src/launcher/views/inputs.js",
+        "src/launcher/overlays.js",
+        "src/launcher/views/menu.js",
+        "src/launcher/customization.js",
+        "src/launcher/views/text-dialog.js",
+        "src/launcher/views/controls.js",
+        "src/launcher/scene.js",
+        "src/launcher/weather.js",
+        "src/launcher/ambient.js",
+        "src/launcher/remote.js",
+        "src/launcher/lifecycle.js"
+      ],
+      "entry": "src/app.js",
+      "browserModule": "src/browser.js",
+      "stateObjects": {
+        "src/launcher/state.js": [
+          "state"
+        ],
+        "src/launcher/ambient.js": [
+          "frameSampling"
+        ]
+      }
+    },
+    "platform.js": {
+      "parameter": "browser",
+      "aliases": {
+        "browser": "w",
+        "strings": "S",
+        "deviceConfig": "D",
+        "tizen": "T",
+        "adapter": "P",
+        "webapis": "W",
+        "validateIconPath": "safeIcon",
+        "recordReadResult": "result",
+        "recordReadFailure": "fail",
+        "readSafely": "attempt"
+      },
+      "order": [
+        "src/platform/state.js",
+        "src/platform/operations.js",
+        "src/platform/apps.js",
+        "src/platform/sources.js",
+        "src/platform/system.js",
+        "src/platform/commands.js",
+        "src/platform/bootstrap.js"
+      ],
+      "entry": "src/platform.js",
+      "browserModule": "src/browser.js",
+      "stateObjects": {}
+    },
+    "strings.js": {
+      "sources": [
+        "src/strings.js"
+      ]
+    },
+    "device.js": {
+      "sources": [
+        "src/device.js"
+      ]
+    }
+  },
+  "styles": {
+    "style.css": [
+      "src/styles/launcher.css"
+    ]
+  }
+}

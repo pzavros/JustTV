@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "target": "ES5",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "ES2020"]
+  },
+  "include": ["src/**/*.js", "src/types.d.ts"],
+  "exclude": ["node_modules", "dist", ".local"]
+}

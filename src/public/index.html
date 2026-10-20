@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920,initial-scale=1" />
+    <title>JustTV</title>
+    <link rel="preload" href="fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      window.COAST_BOOT = performance.now();
+    </script>
+  </head>
+  <body>
+    <div
+      id="root"
+      class="level-0"
+      data-quality="0"
+      tabindex="0"
+      role="application"
+      aria-label="JustTV"
+    >
+      <div id="scene-shift" aria-hidden="true">
+        <div id="coast-scene">
+          <div
+            class="motion stars stars1"
+            style="left: 0; top: 0; width: 1920px; height: 380px"
+          ></div>
+          <div
+            class="motion stars stars2"
+            style="left: 0; top: 0; width: 1920px; height: 380px"
+          ></div>
+          <div
+            class="motion stars stars3"
+            style="left: 0; top: 0; width: 1920px; height: 380px"
+          ></div>
+          <div
+            class="motion cloud"
+            style="left: 600px; top: 120px; width: 2100px; height: 200px"
+          ></div>
+          <div
+            class="motion reflection"
+            style="left: 1230px; top: 475px; width: 280px; height: 110px"
+          ></div>
+          <div
+            class="motion reflection2"
+            style="left: 1230px; top: 570px; width: 280px; height: 370px"
+          ></div>
+          <div class="motion waves" style="left: 0; top: 500px; width: 2240px; height: 40px"></div>
+        </div>
+      </div>
+      <div id="underwater" aria-hidden="true">
+        <div class="beams"><i></i><i></i><i></i><i></i></div>
+        <i class="bubble b1"></i><i class="bubble b2"></i><i class="bubble b3"></i
+        ><i class="bubble b4"></i>
+      </div>
+      <div id="scrim" aria-hidden="true"></div>
+      <div id="page">
+        <header>
+          <div class="profile"><span id="avatar">P</span><span id="greeting"></span></div>
+          <div class="header-right">
+            <span id="weather" hidden></span><time class="clock"></time>
+          </div>
+        </header>
+        <div id="caption">
+          <h1 id="condition"></h1>
+          <p id="location-date"></p>
+        </div>
+        <main id="rows" aria-label="Home"></main>
+        <div id="end-message"></div>
+        <div id="corner-hint"></div>
+      </div>
+      <div id="ambient" hidden>
+        <time class="clock"></time>
+        <p id="ambient-date"></p>
+        <p id="ambient-weather"></p>
+        <span id="wake-hint"></span>
+      </div>
+      <div id="overlay" hidden></div>
+      <div id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <script src="strings.js"></script>
+    <script src="device.js"></script>
+    <script src="platform.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
