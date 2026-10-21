@@ -29,7 +29,7 @@ npm run verify
 npm run format:check
 ```
 
-`verify` builds, checks executable/CSS equivalence and byte budgets, runs compiler/adapter tests, then exercises the baseline, compiled build and direct source modules in a local browser. It makes no TV connection. Browser tests use installed Chrome by default; see README for Chromium setup.
+`verify` builds, checks ES5/build freshness and byte budgets, runs compiler/adapter tests, then exercises the baseline, compiled build and direct source modules in a local browser. Visual parity is required between the current classic/module entries. The historical `check:equivalence` audit remains available and intentionally reports the artwork/motion changes. It makes no TV connection. Browser tests use installed Chrome by default; see README for Chromium setup.
 
 The frozen equivalence baseline is intentional. A new feature changes behavior and requires explicit review of its baseline and byte-budget changes; do not rewrite fixtures just to silence failures. Add tests at observable boundaries, not copies of implementation details. Keep logging, geometry probes and diagnostics off the release navigation path.
 

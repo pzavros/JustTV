@@ -1,6 +1,7 @@
+import { homeDataSignature } from '../refresh.js';
 import { state } from '../state.js';
 import { buildHomeRows } from '../home-model.js';
-import { escapeHtml, renderIcon } from './html.js';
+import { escapeHtml } from './html.js';
 import { renderTileMarkup } from './tiles.js';
 import { byId, platform } from '../environment.js';
 import { focusHome } from '../focus.js';
@@ -33,6 +34,8 @@ export function renderHome() {
         .join('') +
       '</div></div></section>';
   });
+  clearTimeout(state.navMotionTimer);
+  byId('root').classList.remove('navigating');
   byId('rows').innerHTML = html;
   state.lastRenderedLevel = -1;
   state.lastActiveRow = -1;
@@ -58,6 +61,7 @@ export function renderHome() {
     Math.min(state.homeFocus.index, state.rows[state.homeFocus.row].items.length - 1)
   );
   focusHome(state.homeFocus.row, state.homeFocus.index, true);
+  state.renderedPlatformData = homeDataSignature();
   var imgs = byId('rows').querySelectorAll('img');
   for (var i = 0; i < imgs.length; i++) imgs[i].onerror = iconError;
 }
@@ -70,7 +74,7 @@ export function iconError() {
     this.src = fallback;
     return;
   }
-  this.parentNode.insertAdjacentHTML('afterbegin', renderIcon('apps'));
+  this.parentNode.classList.remove('has-artwork');
   this.parentNode.removeChild(this);
   platform.report.iconFallbacks = (platform.report.iconFallbacks || 0) + 1;
 }

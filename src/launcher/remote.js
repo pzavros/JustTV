@@ -1,3 +1,4 @@
+import { schedulePlatformRefresh } from './refresh.js';
 import { frameSampling, scheduleIdle, wake } from './ambient.js';
 import { state } from './state.js';
 import { applyMotionPreferences } from './scene.js';
@@ -16,6 +17,7 @@ import { openInputs } from './views/inputs.js';
 export function sampleFrames() {
   if (
     frameSampling.sampling ||
+    state.sceneQuality >= 4 ||
     state.activeProfile.motion ||
     Date.now() < frameSampling.sampleCooldown ||
     document.hidden
@@ -24,10 +26,9 @@ export function sampleFrames() {
   frameSampling.sampling = true;
   var start = performance.now(),
     last = start,
-    deltas = [],
-    changes = 0;
+    deltas = [];
   function frame(t) {
-    if (document.hidden) {
+    if (document.hidden || state.sceneQuality >= 4 || state.activeProfile.motion) {
       frameSampling.sampling = false;
       return;
     }
@@ -74,6 +75,7 @@ export function pauseForNavigation() {
   state.navMotionTimer = setTimeout(function () {
     state.navigating = false;
     root.classList.remove('navigating');
+    schedulePlatformRefresh();
   }, 320);
 }
 
@@ -140,6 +142,7 @@ export function handleKeyDown(e) {
     if (state.moving) {
       state.moving = null;
       root.classList.remove('moving');
+      schedulePlatformRefresh();
       showToast(strings.done);
       return;
     }

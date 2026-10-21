@@ -1,27 +1,59 @@
-# Performance contract
+# Performance and TV compatibility
 
-This is a local source/module refactor. No TV connection, deployment, startup experiment or new on-device benchmark is part of it.
+All optimization and verification in this pass are local. No TV connection, installation, startup change or on-device benchmark was performed.
 
-## Preserved runtime
+## Release payload
 
-- Same four external JavaScript files, one stylesheet and HTML entry.
-- Same controller/adapter closures. Imports, exports and declared state objects are resolved at build time; no module loader, runtime store or per-feature wrappers ship.
-- Same operations, function bodies, call sites, branches, native calls, timers, debounce intervals, events and storage schema.
-- Same cached focus geometry and old/new DOM updates. No new layout reads or state-object property indirection on arrow navigation.
-- Same ordered CSS rules, specificity, artwork, fonts, configuration and app identity.
-- Same deferred native discovery and weather work after the first frame.
-- Formatted source HTML compiles to the original document apart from reviewed JustTV title/label fields, including its early boot timestamp.
+| File | Before optimization | After optimization |
+| --- | ---: | ---: |
+| app.js | 35,343 B | 29,519 B |
+| platform.js | 5,720 B | 5,098 B |
+| strings.js | 4,162 B | 4,162 B |
+| device.js | 782 B | 782 B |
+| style.css | 22,520 B | 21,739 B |
 
-## Evidence
+The four JavaScript files total 39,561 B, down from 46,007 B (14.0%). JavaScript plus CSS falls by 7,227 B (10.5%). Static artwork and fonts are unchanged during this performance pass. No runtime dependencies or extra release files were added.
 
-`npm run check:equivalence` parses release JavaScript as ES5 and compares executable trees with the frozen baseline. Hoisted function declaration placement and adjacent `var` grouping are normalized because splitting a file changes their placement, without adding operations or changing initialization order. Tests verify that changed operations, property names and initialization order still fail. Duplicate hoisted function definitions are rejected.
+The build verifies linker/code-generator structure before a Terser release pass. Compression uses two passes with unsafe transforms disabled; only local identifiers are mangled. Public property names, Samsung APIs, storage keys and widget identity remain stable. The final JavaScript is parsed as ES5, and adapter tests plus direct-module/classic-browser parity exercise the optimized behavior. [Terser options](https://terser.org/docs/options/) document the optimizer controls.
 
-CSS comparisons preserve rule/declaration order and parse custom properties, while normalizing equivalent numeric/color spelling. Static asset hashes and the complete runtime file list remain checked. The reviewed rebrand changes only document labels, the config display name and icon; `scripts/branding.mjs` limits normalization to those display fields and pins the new icon hash. The frozen historical fixtures are unchanged. `tests/fixtures/runtime-budgets.json` caps each output at its size immediately before this module refactor. Reports are in `.local/reports/refactor-verification.json`.
+Budgets are tightened to 29,800 B for app.js, 5,200 B for platform.js and 22,000 B for CSS. Historical fixtures remain unchanged. `check:equivalence` is a historical refactor audit and intentionally fails for the subsequent UI and optimization work; it is not the current behavior gate.
 
-The browser suite runs the baseline, compiled build and direct ES module entries using isolated storage, fixed time, local fixtures and blocked external requests. It tests every row's focus bounds, edge stopping, overlays, held OK, ambient wake and rename persistence. Capture waits for navigation to settle and disables CSS animations in the screenshot runner only. DOM markup hashes and focus geometry must match exactly for all six views. PNG comparisons allow at most 20 differing pixels out of 2,073,600 and require Pixelmatch to find zero significant differences with a 0.005 threshold and antialias detection; raw PNG hashes are still recorded, so edge-rasterization differences are not reported as byte-identical. Reports are in `.local/reports/refactor-browser-checks.json`.
+## Runtime work
 
-Adapter tests mock Tizen APIs. Module tests protect import/export validation, scope shadowing, static state lowering, non-escaping state and equivalence normalization. Build-only tools and declarations stay outside `dist/`.
+- Arrow presses that cannot move home focus return before focus/ARIA mutations, frame sampling or preference saves. The existing remote throttle and idle wake semantics remain intact.
+- Re-selecting the focused element avoids redundant focus mutations. Navigation geometry remains cached, without layout measurements on the arrow path.
+- Row and track positioning use two-dimensional transforms. Only the active track explicitly requests promotion. The focused card still has its transform hint while full motion is enabled.
+- Reduced motion removes explicit promotion hints from scene, decoration, tracks and focus faces. It continues to disable animation/transition effects. This addresses frozen elements retaining hints; it is not a measured GPU-memory reduction. [Chrome's rendering documentation](https://developer.chrome.com/blog/inside-browser-part3) explains the relationship between layer hints and compositing.
+- Minute/weather updates retain the current scene class and weather markup when unchanged. The old SVG-circle query is removed because the shipped scene is raster artwork.
+- A home rebuild cancels the prior navigation-pause timeout and clears its class, preventing stale paused decoration after refresh.
+- Duplicate overridden CSS declarations and unused SVG scene palettes/rules are removed; the visible artwork, focus scale, 150ms focus, 180ms scroll and 300ms row/scene timings remain intact.
+
+TV defaults remain conservative: scene quality 4 and the existing saved/default Reduce motion setting. No preference migration or installed app identity was changed.
+
+## Reproducible local measurements
+
+`npm run test:performance` starts a loopback server, launches headless Chrome at 1920×1080 and applies 4× CPU throttling. It exercises full/reduced motion, row changes and repeated boundary keys. It records file sizes, first-usable time, navigation timing, DOM mutations and explicit `will-change` counts in `.local/reports/performance-after.json`.
+
+The performance check asserts that eight ineffective boundary presses perform no settings writes and at most the two navigation-pause class changes. Reduced motion must leave zero explicit `will-change` hints. In the first optimization pass’s serial run, boundary mutations fell from 18 to 2 and settings writes from 1 to 0. Explicit layer hints in reduced motion fell from 18 to 0 (full motion: 18 to 14). The observed navigation handler p95 was 0.6–0.9ms after versus 1.2–2.1ms before with 4× desktop CPU throttling. These are single-run diagnostics, not hard latency thresholds or TV benchmarks; cold-start timings varied and are not claimed as a reliable improvement.
+
+To compare an earlier copied build: `node scripts/performance.mjs .local/performance-before`. Run timing comparisons serially, without other browser checks competing for CPU. A null compositor-layer count means headless Chrome did not expose the layer tree. No GPU-memory number should be inferred from that result.
+
+`npm run verify` checks a fresh build, ES5 syntax, byte budgets, pinned static assets, compiler/adapter tests and browser navigation/persistence. Six settled views must match between the current classic and direct-module entries. `JUSTTV_VISUAL_BASELINE=.local/performance-before npm run test:browser` also compares those views against the saved build from before this optimization. Releasing compositor layers changes gradient rounding and compact text antialiasing, so that saved-build comparison requires focus geometry within 0.02px and at most 2,000 perceptually differing pixels out of 2,073,600 at Pixelmatch threshold 0.1. Current classic/module parity retains the strict 20 raw pixels / zero significant pixels checks.
 
 ## Limits
 
-These checks protect the executable work and payload; they are not new measurements of TV latency, frame rate or memory. Native ES module execution is a development/test path; the TV continues to receive classic ES5 bundles. Historical TV reports describe earlier deployed builds, not this undeployed change.
+Desktop Chrome with CPU throttling is not the Samsung TV's browser, CPU or GPU. Local checks cannot establish TV frame rate, GPU memory, cold-start behavior or native source-switch latency. Real hardware validation is still required before claiming perfect TV performance. The performance harness, instrumentation, comparison builds and screenshots stay outside the release bundle.
+
+## Follow-up: native refresh scheduling and sampling
+
+The second pass adds 727 B of minified JavaScript for bounded refresh scheduling and visible-data comparison. CSS, artwork, font files and all animation timings are unchanged from the preceding optimized build. The app remains below the tightened 29,800 B budget.
+
+- Native app/source/info/running notifications coalesce into one 60ms batch. An unchanged visible catalogue, connection state and network label preserve every home row and card node. Non-favourite app changes, model/firmware diagnostics and IP-only changes do not rebuild the home.
+- Volume feedback remains immediate. Other pending work is retained while navigating, holding OK, using an overlay, reordering apps, showing ambient mode or hiding the document. Explicit navigation/interaction/lifecycle completion hooks resume the queue; there is no polling loop.
+- Resume-time native reads join the same queue. Pending work is not discarded by hiding the document or opening a menu.
+- Equal HDMI cards receive updated native source descriptors without replacing DOM nodes. Their activation closures reference the current descriptor, so switching uses the latest native handle.
+- At scene quality 4, the optional JavaScript frame sampler does not start: it cannot downgrade quality further. In-flight sampling also stops on reduced motion, quality 4 or document hiding. CSS animation and transition settings are unchanged.
+
+The refresh unit tests cover coalescing, visible versus non-visible changes, each deferral condition and fresh source handles. The browser suite checks real callback/DOM behavior, navigation/menu/ambient resumption, direct HDMI activation with an updated handle, and zero sampling callbacks at quality 4 with full motion enabled. Both classic and direct-module entries execute these checks. A saved-build comparison uses `.local/performance-refresh-before` for this pass.
+
+The repeatable performance script additionally records how often 20 identical native info notifications rebuild the home. The current build asserts zero rebuilds. No runtime performance instrumentation was added to the release bundle.

@@ -32,11 +32,11 @@ npm run build
 npm run verify
 ```
 
-`dist/` is disposable generated TV output. Its compact `app.js` is a build product; edit the readable files in `src/launcher/` instead. The build recreates `dist/` from source and retains the same runtime bundles, behavior and asset bytes.
+`dist/` is disposable generated TV output. Its compact `app.js` is a build product; edit the readable files in `src/launcher/` instead. The build recreates `dist/` from source with classic ES5 runtime bundles.
 
 Browser checks use installed Chrome. Alternatively run `npx playwright install chromium` and then `JUSTTV_BROWSER_CHANNEL=chromium npm run test:browser`.
 
-`npm run format` formats source and tools; `npm run format:check` checks formatting. `npm run verify` includes frozen baseline equivalence, ES5/size checks, module/adapter tests and browser comparisons of both the release build and directly loaded source modules. The source HTML is readable too; its build output remains byte-identical. An intentional behavior change requires explicit review of the baseline.
+`npm run format` formats source and tools; `npm run format:check` checks formatting. `npm run verify` includes ES5/size checks, module/adapter tests and browser comparisons of the release build and directly loaded source modules. The historical baseline still runs navigation/persistence checks. `npm run check:equivalence` is a historical refactor audit and is expected to fail for the intentional artwork/motion update; frozen fixtures are retained.
 
 ## Documentation
 
@@ -58,3 +58,23 @@ No TV settings or installed apps were changed during this reorganization. The ea
 ## Branding and installed-TV compatibility
 
 The project folder and public name are **JustTV**. The icon uses a J monogram. The app/package/widget IDs, `coast.*` storage keys and `Coast`/`COAST_*` tooling interfaces deliberately retain their existing values so a later update can preserve installed identity, Home routing and saved preferences. Historical builds and frozen test fixtures keep their original names. No installation or deployment is part of this rename.
+
+## Local UI preview
+
+Run `npm run build` and `npm run preview`, then open http://127.0.0.1:4173.
+Use arrow keys to explore, Enter to select, hold Enter for options, and Esc to go back.
+C opens controls and I opens inputs. The preview seeds a sample app catalogue only in
+that browser origin when empty; its script stays outside the TV build. It binds only
+to loopback and does not connect to or deploy to the TV.
+
+App cards now use the full face for artwork, with the selected name beneath the card.
+Spotify and HBO Max use bundled logos (see [artwork sources](docs/artwork.md)).
+Apps without usable artwork get a centered wordmark; launcher shortcuts use large icons.
+Row, focus and panel transitions are coordinated, and both the saved Reduce motion
+setting and the browser's reduced-motion preference disable them.
+
+Input cards switch directly to their source on click or Enter. Hold Enter retains rename/hide options. The local preview includes sample TV/HDMI sources; selecting one shows the existing browser-only control message.
+
+## Performance checks
+
+The release build compresses and locally mangles ES5 JavaScript while preserving public/native property names. Run `npm run test:performance` for a local 4× CPU-throttled navigation check, including boundary-key storage writes and reduced-motion layer hints. See [performance evidence and limits](docs/performance.md). It does not connect to the TV.

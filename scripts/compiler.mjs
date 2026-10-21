@@ -142,7 +142,16 @@ export async function compile() {
     if (executableAst(runtime) !== executableAst(result.code)) {
       throw new Error(`${file}: code generation changed executable structure`);
     }
-    outputs[file] = result.code + '\n';
+    // Verify the linker/code generator before the reviewed release optimization pass.
+    // Rename local bindings only: Samsung APIs, public keys and storage keys are stable.
+    const optimized = await minify(result.code, {
+      ecma: 5,
+      compress: { passes: 2, unsafe: false },
+      mangle: { properties: false },
+      format: { comments: false, quote_style: 1, wrap_iife: true }
+    });
+    parse(optimized.code, { ecmaVersion: 5 });
+    outputs[file] = optimized.code + '\n';
   }
   for (const [file, sources] of Object.entries(manifest.styles)) {
     const source = (await Promise.all(sources.map(read))).join('\n');

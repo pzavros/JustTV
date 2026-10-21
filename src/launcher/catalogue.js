@@ -9,12 +9,14 @@ import { openSourceVisibility } from './customization.js';
  */
 export function appBrand(a) {
   var n = a.name.toLowerCase();
-  if (/youtube/.test(n)) return ['#E1252B', '#fff', 'play'];
-  if (/netflix/.test(n)) return ['#151515', '#fff', 'play'];
-  if (/prime/.test(n)) return ['#1A7AB8', '#fff', 'play'];
-  if (/spotify/.test(n)) return ['#1ED760', '#0B0B0D', 'sound'];
+  if (/youtube/.test(n)) return ['#fff', '#151515', 'play'];
+  if (/netflix/.test(n)) return ['#151515', '#E50914', 'play'];
+  if (/prime/.test(n)) return ['#0578ff', '#fff', 'play'];
+  if (/spotify/.test(n)) return ['#101812', '#1ED760', 'sound', 'assets/icons/spotify.svg'];
+  if (/^(hbo\s*max|max)$/.test(n)) return ['#111', '#fff', 'play', 'assets/icons/hbo-max.svg'];
   if (/plex/.test(n)) return ['#1F1F22', '#F2B230', 'play'];
-  if (/browser|internet/.test(n)) return ['#F2F2F4', '#0B0B0D', 'browser'];
+  if (/browser|internet/.test(n))
+    return ['linear-gradient(180deg,#3179f6,#5125dc)', '#fff', 'browser'];
   return ['#2A2D3A', '#fff', 'apps'];
 }
 
@@ -70,7 +72,7 @@ export function listSourceTiles() {
       return state.activeProfile.sourceHidden.indexOf(a.id) < 0;
     })
     .map(function (a) {
-      return {
+      var tile = {
         id: a.id,
         name: state.activeProfile.renames[a.id] || a.name,
         sub: a.type === 'TV' ? strings.antenna : a.type + (a.number ? ' ' + a.number : ''),
@@ -79,9 +81,10 @@ export function listSourceTiles() {
         source: a,
         connected: a.connected,
         action: function () {
-          openInputs(a.id);
+          platform.switchSource(tile.source, handleLaunchResult);
         }
       };
+      return tile;
     });
   if (!list.length)
     list.push({

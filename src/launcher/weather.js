@@ -54,11 +54,12 @@ export function updateWeatherUI() {
   var valid = state.weather && Date.now() - state.weather.at < 3600000;
   byId('weather').hidden = !valid;
   if (valid) {
-    byId('weather').innerHTML =
+    var weatherHtml =
       renderIcon(getSceneMode() === 'night' ? 'moon' : 'sun') +
       '<span>' +
       Math.round(state.weather.temp) +
       '°</span>';
+    if (byId('weather').innerHTML !== weatherHtml) byId('weather').innerHTML = weatherHtml;
     byId('ambient-weather').textContent =
       describeWeatherCondition(getSceneMode()) +
       ' · ' +

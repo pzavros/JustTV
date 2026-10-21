@@ -78,3 +78,11 @@ Navigation still uses cached geometry, existing DOM references and old/new focus
 Executable-tree checks allow only hoisted function declaration placement, adjacent `var` grouping, equivalent property-key quotation and spelling metadata to differ. They preserve initialization order, call sites, function bodies, timers, branches and native operations. CSS rule order and all static assets are protected separately, with explicit name/icon exceptions in `scripts/branding.mjs`; every runtime file must fit the byte budget of the build immediately before this change.
 
 This is not a framework migration. A broader state machine or runtime module system should be a separate, measured feature. Pre-existing behavior such as the older About version string, current debug API and unresolved cold-start experiment is retained.
+
+### Release optimization
+
+The compiler now performs a second Terser compression/local-name pass after verifying linker/code-generator structure. Final bundles must parse as ES5; public property mangling and unsafe transforms are disabled. The current classic/direct-module browser comparisons and adapter tests validate the optimized output. Historical AST equivalence documents the preceding refactor and is intentionally not expected after feature changes. See `docs/performance.md` for current budgets and measurements.
+
+### Native refresh ownership
+
+`src/launcher/refresh.js` owns the pending native refresh batch and visible-data signature. `views/home.js` records the signature after each explicit rebuild. Native notifications queue work; interaction/lifecycle completion hooks resume deferred batches. Unchanged card DOM survives, while source descriptors and running indicators can update in place. `state.pendingPlatformChanges` stores pending UI/read bits without adding timers during blocked interactions.

@@ -9,10 +9,12 @@
     "check": "node scripts/check.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:browser": "node tests/browser.mjs",
-    "verify": "npm run build && npm run check:equivalence && npm test && npm run test:browser",
+    "verify": "npm run build && npm run check && npm test && npm run test:browser",
     "check:equivalence": "node scripts/check.mjs --equivalence",
     "format": "prettier --write \"src/**/*.{js,css,ts,html}\" \"scripts/*.mjs\" \"tests/*.mjs\"",
-    "format:check": "prettier --check \"src/**/*.{js,css,ts,html}\" \"scripts/*.mjs\" \"tests/*.mjs\""
+    "format:check": "prettier --check \"src/**/*.{js,css,ts,html}\" \"scripts/*.mjs\" \"tests/*.mjs\"",
+    "preview": "node scripts/preview.mjs",
+    "test:performance": "node scripts/performance.mjs"
   },
   "engines": {
     "node": ">=20"

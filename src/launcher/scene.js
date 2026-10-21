@@ -43,16 +43,18 @@ export function describeWeatherCondition(mode) {
 
 export function setScene() {
   var mode = getSceneMode();
-  root.classList.remove('scene-night', 'scene-sunset', 'scene-day');
-  root.classList.add('scene-' + mode);
-  var circles = byId('coast-scene').querySelectorAll('circle[cx="1380"]');
-  for (var i = 0; i < circles.length; i++)
-    circles[i].setAttribute('cy', mode === 'night' ? '200' : mode === 'sunset' ? '420' : '150');
-  byId('condition').textContent = describeWeatherCondition(mode);
+  if (!root.classList.contains('scene-' + mode)) {
+    root.classList.remove('scene-night', 'scene-sunset', 'scene-day');
+    root.classList.add('scene-' + mode);
+  }
+  var caption = describeWeatherCondition(mode);
+  if (byId('condition').textContent !== caption) byId('condition').textContent = caption;
   applyMotionPreferences();
 }
 
 export function applyMotionPreferences() {
-  root.classList.toggle('reduce-motion', !!state.activeProfile.motion);
-  root.setAttribute('data-quality', state.sceneQuality);
+  if (root.classList.contains('reduce-motion') !== !!state.activeProfile.motion)
+    root.classList.toggle('reduce-motion', !!state.activeProfile.motion);
+  if (root.getAttribute('data-quality') !== String(state.sceneQuality))
+    root.setAttribute('data-quality', state.sceneQuality);
 }

@@ -7,12 +7,17 @@ import { normalizeBranding, ICON_SHA256 } from './branding.mjs';
 
 const outputs = await compile();
 const generated = new Set(Object.keys(outputs));
-const assetHashes = JSON.parse(await read('tests/fixtures/assets-before.json'));
+const reviewedAssets = JSON.parse(await read('tests/fixtures/ui-assets.json'));
+const assetHashes = {
+  ...JSON.parse(await read('tests/fixtures/assets-before.json')),
+  ...reviewedAssets
+};
 const budgets = JSON.parse(await read('tests/fixtures/runtime-budgets.json'));
 const report = {
   localOnly: true,
   generated: {},
-  staticFilesUnchangedExceptBranding: true,
+  historicalStaticFilesUnchangedExceptBranding: true,
+  reviewedAddedArtwork: Object.keys(reviewedAssets),
   reviewedBranding: ['index.html: title/label', 'config.xml: name', 'icon.png: J monogram']
 };
 for (const [file, expected] of Object.entries(outputs)) {
@@ -60,7 +65,7 @@ await fs.writeFile(
   JSON.stringify(report, null, 2) + '\n'
 );
 console.log(
-  'ES5, fresh builds and file budgets verified; static changes are limited to reviewed JustTV branding.'
+  'ES5, fresh builds and file budgets verified; static changes are limited to reviewed JustTV branding and app artwork.'
 );
 if (process.argv.includes('--equivalence'))
   console.log(

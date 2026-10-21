@@ -81,6 +81,7 @@
         "src/launcher/weather.js",
         "src/launcher/ambient.js",
         "src/launcher/remote.js",
+        "src/launcher/refresh.js",
         "src/launcher/lifecycle.js"
       ],
       "entry": "src/app.js",

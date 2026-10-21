@@ -8,15 +8,27 @@ export function renderTileMarkup(tile, rowIndex, tileIndex) {
     name = escapeHtml(tile.name),
     inner;
   if (rowIndex === 0) {
-    inner =
-      (tile.image
-        ? '<img class="app-icon" alt="" src="' + escapeHtml(tile.image) + '" decoding="async">'
-        : renderIcon(tile.icon)) +
-      '<span class="name">' +
-      name +
-      '</span>';
+    var brandName = (tile.originalName || tile.name).toLowerCase(),
+      brandClass = /netflix/.test(brandName)
+        ? ' netflix'
+        : /spotify/.test(brandName)
+          ? ' spotify'
+          : /^(hbo\s*max|max)$/.test(brandName)
+            ? ' hbomax'
+            : /plex/.test(brandName)
+              ? ' plex'
+              : '';
+    inner = tile.app
+      ? '<span class="app-wordmark">' + escapeHtml(tile.originalName || tile.name) + '</span>'
+      : renderIcon(tile.icon);
+    if (tile.image)
+      inner +=
+        '<img class="app-artwork" alt="" src="' + escapeHtml(tile.image) + '" decoding="async">';
     face =
-      '<div class="face appface" style="background:' +
+      '<div class="face appface' +
+      brandClass +
+      (tile.image ? ' has-artwork' : '') +
+      '" style="background:' +
       tile.bg +
       ';color:' +
       tile.fg +
@@ -24,7 +36,9 @@ export function renderTileMarkup(tile, rowIndex, tileIndex) {
       inner +
       '<i class="running-dot" ' +
       (platform.running[tile.id] ? '' : 'hidden') +
-      '></i></div>';
+      '></i></div><span class="app-label">' +
+      name +
+      '</span>';
   } else if (rowIndex === 1) {
     face =
       '<div class="face source-face' +

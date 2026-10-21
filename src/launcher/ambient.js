@@ -1,3 +1,4 @@
+import { schedulePlatformRefresh } from './refresh.js';
 import { state } from './state.js';
 import { byId, root, strings } from './environment.js';
 import { updateClock } from './weather.js';
@@ -28,6 +29,7 @@ export function wake() {
   root.classList.remove('ambient-on');
   focusHome(state.homeFocus.row, state.homeFocus.index, true);
   scheduleIdle();
+  schedulePlatformRefresh();
 }
 
 export const frameSampling = { sampling: false, sampleCooldown: 0 };

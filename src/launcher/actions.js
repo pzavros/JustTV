@@ -1,3 +1,4 @@
+import { schedulePlatformRefresh } from './refresh.js';
 import { state } from './state.js';
 import { showToast } from './presentation.js';
 import { platform, root, strings } from './environment.js';
@@ -42,6 +43,7 @@ export function activateHome(long) {
   if (state.moving) {
     state.moving = null;
     root.classList.remove('moving');
+    schedulePlatformRefresh();
     showToast(strings.done);
     return;
   }

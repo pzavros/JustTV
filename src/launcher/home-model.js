@@ -44,7 +44,7 @@ export function buildHomeRows() {
       name: state.activeProfile.renames[a.id] || (/^Spotify/.test(a.name) ? 'Spotify' : a.name),
       originalName: a.name,
       icon: b[2],
-      image: a.icon,
+      image: b[3] || a.icon,
       bg: b[0],
       fg: b[1],
       hint: strings.openApps,

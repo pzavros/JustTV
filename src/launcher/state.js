@@ -25,6 +25,8 @@ export const state = {
   weatherTimer: 0,
   weatherRequest: null,
   platformRefreshTimer: 0,
+  pendingPlatformChanges: 0,
+  renderedPlatformData: null,
   resumeRefreshTimer: 0,
   sceneQuality: platform.tv ? 4 : 0,
   performanceMetrics: { firstUsableMs: 0, nav: [], frames: [], quality: platform.tv ? 4 : 0 },

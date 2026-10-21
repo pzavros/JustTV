@@ -111,6 +111,8 @@ interface LauncherState {
   weatherTimer: number;
   weatherRequest: XMLHttpRequest | null;
   platformRefreshTimer: number;
+  pendingPlatformChanges: number;
+  renderedPlatformData: string | null;
   resumeRefreshTimer: number;
   sceneQuality: number;
   performanceMetrics: LauncherMetrics;

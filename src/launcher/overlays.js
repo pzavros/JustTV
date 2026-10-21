@@ -1,3 +1,4 @@
+import { schedulePlatformRefresh } from './refresh.js';
 import { state } from './state.js';
 import { byId } from './environment.js';
 import { scheduleIdle } from './ambient.js';
@@ -76,6 +77,7 @@ export function closeOverlay() {
   document.body.classList.remove('overlay-open');
   focusHome(state.homeFocus.row, state.homeFocus.index, true);
   scheduleIdle();
+  schedulePlatformRefresh();
 }
 
 export function closeAllOverlays() {

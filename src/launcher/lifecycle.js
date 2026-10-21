@@ -1,3 +1,4 @@
+import { queuePlatformRefresh, schedulePlatformRefresh } from './refresh.js';
 import { state } from './state.js';
 import { fetchWeather, updateClock } from './weather.js';
 import { scheduleIdle, showAmbient, wake } from './ambient.js';
@@ -24,6 +25,8 @@ export function handleVisibilityChange() {
     clearTimeout(state.clockTimer);
     clearTimeout(state.weatherTimer);
     clearTimeout(state.resumeRefreshTimer);
+    clearTimeout(state.platformRefreshTimer);
+    state.platformRefreshTimer = 0;
     if (state.weatherRequest) state.weatherRequest.abort();
     return;
   }
@@ -32,10 +35,11 @@ export function handleVisibilityChange() {
   scheduleIdle();
   clearTimeout(state.resumeRefreshTimer);
   state.resumeRefreshTimer = setTimeout(function () {
-    if (!document.hidden) platform.refresh();
+    if (!document.hidden) queuePlatformRefresh(true);
   }, 100);
   // A Home launch routed to an already-running app returns to its top.
   if (!state.activeOverlay) focusHome(0, state.homeFocus.last[0] || 0, true);
+  schedulePlatformRefresh();
   if (!state.weather || Date.now() - state.weather.at > 1800000) fetchWeather();
 }
 
@@ -44,20 +48,7 @@ platform.onChange = function (what) {
     handleVolumeResult();
     return;
   }
-  if (what === 'running') {
-    state.rows.forEach(function (r) {
-      if (r.kind !== 'apps') return;
-      r.items.forEach(function (a, i) {
-        var dot = r.buttons[i].querySelector('.running-dot');
-        if (dot) dot.hidden = !platform.running[a.id];
-      });
-    });
-    return;
-  }
-  clearTimeout(state.platformRefreshTimer);
-  state.platformRefreshTimer = setTimeout(function () {
-    if (!state.activeOverlay && !state.moving) renderHome();
-  }, 60);
+  queuePlatformRefresh(false);
 };
 
 // Restore preferences before constructing the first home view.

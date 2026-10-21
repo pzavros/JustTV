@@ -26,7 +26,7 @@ export function updateLayout() {
         (i === state.homeFocus.row ? ' active' : '') +
         (compact ? ' compact' : '') +
         (off ? ' offscreen' : '');
-      r.el.style.transform = 'translate3d(0,' + y[i] + 'px,0)';
+      r.el.style.transform = 'translateY(' + y[i] + 'px)';
     });
     state.lastRenderedLevel = lv;
     state.lastActiveRow = state.homeFocus.row;
@@ -38,6 +38,7 @@ export function updateLayout() {
 }
 
 export function focusElement(el) {
+  if (state.focusedElement === el) return;
   if (state.focusedElement && state.focusedElement !== el) {
     state.focusedElement.classList.remove('focus');
     state.focusedElement.tabIndex = -1;
@@ -80,7 +81,7 @@ export function focusHome(r, i, noSample) {
   if (x - row.offset < margin) row.offset = Math.max(-25, x - margin);
   if (x - row.offset > max) row.offset = x - max;
   if (row.drawnOffset !== row.offset) {
-    row.track.style.transform = 'translate3d(' + -row.offset + 'px,0,0)';
+    row.track.style.transform = 'translateX(' + -row.offset + 'px)';
     row.drawnOffset = row.offset;
   }
   focusElement(row.buttons[state.homeFocus.index]);
@@ -105,5 +106,6 @@ export function navigateHome(dx, dy) {
         : Math.min(state.rows[next].items.length - 1, i);
     r = next;
   }
+  if (r === state.homeFocus.row && i === state.homeFocus.index) return;
   focusHome(r, i);
 }
