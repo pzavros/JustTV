@@ -122,8 +122,9 @@ try {
       firstUsableMs: Coast.metrics.firstUsableMs,
       mutations: window.perfMutations,
       nav: Coast.metrics.nav,
+      // Card faces always keep their layer; count the remaining explicit hints.
       willChange: [...document.querySelectorAll('#root *')].filter(
-        (el) => getComputedStyle(el).willChange !== 'auto'
+        (el) => !el.classList.contains('face') && getComputedStyle(el).willChange !== 'auto'
       ).length
     }));
     // Settle at the left boundary before measuring repeated, ineffective input.
@@ -150,10 +151,13 @@ try {
     const edgeStorageWrites = await page.evaluate(() => window.perfStorageWrites);
     if (variant === 'dist') {
       assert.equal(edgeStorageWrites, 0, 'Repeated boundary presses must not write preferences');
-      assert.ok(edgeMutations <= 2, 'Boundary presses may only toggle the navigation class');
-      // Frozen decoration is flattened; only the scene and the five row tracks keep layers.
-      if (motion)
-        assert.equal(nav.willChange, 6, 'Reduced motion keeps only scene and track layers');
+      assert.ok(
+        edgeMutations <= 2,
+        'Boundary presses may only toggle the navigation class (saw ' + edgeMutations + ')'
+      );
+      // Frozen decoration is flattened; besides card faces, only the scene, the five row tracks
+      // and the caption keep layers (the scrim overlay is a pseudo-element).
+      if (motion) assert.equal(nav.willChange, 7, 'Reduced motion keeps only stable layers');
     }
     await page.evaluate(() => {
       window.duplicateRefreshRebuilds = 0;

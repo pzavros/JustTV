@@ -72,8 +72,38 @@ Local diagnostic: an 18-key navigation run used headless Chrome with software ra
 
 Motion was retuned to feel quicker and more physical, using only transform and opacity. CSS grows to 23,278 B (budget 23,400 B); app.js grows by about 170 B.
 
-- Focus lifts with a 280ms spring that overshoots slightly, then settles in 200ms. The focused card gains a top-lit gloss and a soft shadow. Pressing OK dips it to 1.05× before it springs back. The selected name follows 60ms after the card.
+- Focus lifts with a 280ms spring that overshoots slightly, then settles in 200ms. The focused card gains a top-lit gloss and a soft shadow. Pressing OK dips it to 1.05× before it springs back. The selected name appears with the card. (Its fade was later removed; see the TV-measured pass.)
 - Tracks glide in 260ms with an ease-out that starts fast. Rows and compact scaling take 380ms. The scene trails at 560ms, giving parallax depth on level changes. Inputs pickers use the same curve.
 - The home has a staggered entrance at boot, on return from an app and after waking from ambient mode. It lasts about one second. Any key ends it immediately, so input is never delayed. Ambient mode fades in with a rising clock.
-- Reduce motion disables all of the above. It also drops the blurred focus shadow, the costliest focus paint, so the TV default matches the previous build's raster cost (118 ms vs 127 ms in the 18-key software-raster diagnostic). In full motion, rasterized tiles fell from 1,358 to 1,118. Style work per run rose by about a third because transitions run longer.
+- Reduce motion disables all of the above. At first it also dropped the blurred focus shadow, the costliest focus paint, so the TV default matches the previous build's raster cost (118 ms vs 127 ms in the 18-key software-raster diagnostic). In full motion, rasterized tiles fell from 1,358 to 1,118. Style work per run rose by about a third because transitions run longer.
 - Full motion is now the TV default. New profiles start with Reduce motion off. A one-time `fullMotion` migration clears the Reduce motion setting that `fastDefaults` previously forced on every TV profile. Afterwards the toggle is the user's again, and a later choice to turn it on is kept. Scene quality stays at tier 4, so the camera, cloud, wave and star animations remain frozen on the TV, and the frame sampler stays off. Only focus, scrolling, row, entrance and overlay motion runs.
+
+## Follow-up: measured on the TV
+
+This pass used the real TV, a UE65AU7172 on Tizen 6.0 running Chromium 76. Tizen's debug launch (`sdb shell 0 debug CodexHub01.Home`) exposes DevTools. Frame timing, traces and layer trees were read through it. The scripts sent only arrow and Back keys. Findings:
+
+- The TV rasterizes page content on two CPU worker threads, and decodes images in software. Raster, not JavaScript, caused the hitches. Key handlers never exceeded 2.3 ms.
+- Any compositor animation runs at about 49 fps (20.5 ms frames), even on an empty page. This is the platform floor; the goal is no hitches above it.
+- Per tile, the CPU rasterizer charged about 120 ms for the blurred focus `box-shadow`, and 120 ms per fade for the caption's 24px `text-shadow`. The HBO Max `invert()` filter and gradient re-rasters were also costly.
+
+Changes:
+
+- Quality 4 also freezes the reflections. Their running transform animation made Chrome "assume overlap" for everything after them, forcing about a dozen extra layers and continuous redraws. Idle now holds 60 fps. `#root` no longer gets an identity `scale(1)`, which made it a layer.
+- Every card face keeps one layer (`will-change: transform`). Without it, each focus change restructured layers, so the rest of the track re-rasterized before the animation started. A cc debug trace confirmed that the focused face re-rasterizes at its 1.12 scale, so it stays sharp. The selected name and hint now appear without their own fades, which created temporary layers.
+- The focus shadow is a pre-blurred 9-slice image, `assets/focus-shadow.png`, drawn with `border-image`. The card's area is cut out, like a real box-shadow. The gloss gradient stays.
+- Compact rows are no longer restyled (font bumps, shadow and ring removal). Each level change used to force a full track re-raster.
+- The scrim keeps one gradient. Deeper levels fade a solid overlay. The scene layer is clipped to 1920px and stays painted under the opaque underwater layer at level 2. Previously its tiles were dropped and the 1920×1440 artwork re-decoded on return. The caption keeps a layer and a 10px shadow.
+- The intro animates the row wrappers around the already-composited tracks, not each tile, and starts 80ms later. On wake, the background switch is then rasterized while rows are still transparent.
+- HBO Max uses a light card with its black logo instead of a live `invert()` filter.
+
+TV results with the same script, deployed build 99535e3 vs this pass (main-thread frames):
+
+| Scenario | Before | After |
+| --- | ---: | ---: |
+| Idle | 49 fps | 59.4 fps |
+| Single steps | 29.6 fps, worst 268 ms | 57 fps, worst 36 ms |
+| Held key | 33.8 fps, worst 224 ms | 50 fps, worst 50 ms |
+| Level down/up | 32 fps, worst 156 ms | 47 fps, worst 69 ms |
+| Wake intro | 35 fps, worst 371 ms | 46 fps, worst 183 ms |
+
+CPU raster for four focus steps fell from about 3,000 ms to 178 ms. The weakest remaining case is a row first scrolling into view: its tiles rasterize then, and deep level changes still reach about 200 ms. The `fullMotion` default and scene quality tier are unchanged.

@@ -30,5 +30,6 @@ export function endIntro() {
 
 export function fitCanvas() {
   state.canvasScale = Math.min(innerWidth / 1920, innerHeight / 1080);
-  root.style.transform = 'scale(' + state.canvasScale + ')';
+  // An identity transform still made #root a compositor layer on the TV.
+  root.style.transform = state.canvasScale === 1 ? '' : 'scale(' + state.canvasScale + ')';
 }

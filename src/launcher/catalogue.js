@@ -13,7 +13,8 @@ export function appBrand(a) {
   if (/netflix/.test(n)) return ['#151515', '#E50914', 'play'];
   if (/prime/.test(n)) return ['#0578ff', '#fff', 'play'];
   if (/spotify/.test(n)) return ['#101812', '#1ED760', 'sound', 'assets/icons/spotify.svg'];
-  if (/^(hbo\s*max|max)$/.test(n)) return ['#111', '#fff', 'play', 'assets/icons/hbo-max.svg'];
+  // The bundled logo is black; a light card avoids a per-raster invert() filter on the TV.
+  if (/^(hbo\s*max|max)$/.test(n)) return ['#fff', '#000', 'play', 'assets/icons/hbo-max.svg'];
   if (/plex/.test(n)) return ['#1F1F22', '#F2B230', 'play'];
   if (/browser|internet/.test(n))
     return ['linear-gradient(180deg,#3179f6,#5125dc)', '#fff', 'browser'];

@@ -12,3 +12,5 @@ Spotify and HBO Max/Max get bundled artwork by their original catalogue names, s
 ## Native icons
 
 Native and fallback raster icons are usually square, so `object-fit: contain` left them as a smaller square inside the 312×176 card. After an icon loads, `fitArtwork` in `views/home.js` draws it once into a 350×198 canvas, the focused card size. Transparent margins are trimmed. Opaque tiles fill the card height, and each row's outermost colour is extended to the card edges, so solid colours, gradients and rounded corners blend into the card. Transparent logos are trimmed and centered at up to 70% of the card height over the brand colour. Bundled SVG logos are unchanged. If the canvas is tainted, the original icon is kept. The 104 px bundled fallback icons still upscale softly; higher-resolution files would sharpen them.
+
+HBO Max uses a white card with the unmodified black logo. A live `invert()` filter was costly on the TV's CPU rasterizer. `focus-shadow.png` is a generated 9-slice focus shadow (200×200, card edge 40px inside), not brand artwork.

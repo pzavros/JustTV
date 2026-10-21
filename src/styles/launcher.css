@@ -54,6 +54,9 @@ button:focus {
   position: absolute;
   width: 1920px;
   height: 1440px;
+  /* Clip the overflowing cloud and waves: a 2700px layer wasted TV tile memory and evictions
+     forced the scene to re-decode and re-raster on every level change. */
+  overflow: hidden;
   will-change: transform;
   transition:
     transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -265,31 +268,31 @@ button:focus {
   );
   pointer-events: none;
 }
+/* Deeper levels fade a solid layer instead of swapping the gradient, which re-rastered it. */
+#scrim:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 7, 12, 0.62);
+  opacity: 0;
+  transition: opacity 380ms ease-out;
+  will-change: opacity;
+}
 .level-1 #scene-shift {
   transform: translateY(-360px);
 }
-.level-1 #scrim {
-  background: linear-gradient(
-    180deg,
-    rgba(5, 7, 12, 0.55),
-    rgba(5, 7, 12, 0.72) 30%,
-    rgba(5, 7, 12, 0.9) 70%,
-    rgba(5, 7, 12, 0.96)
-  );
+.level-1 #scrim:after,
+.level-2 #scrim:after {
+  opacity: 1;
 }
+/* The scene stays painted under the opaque underwater layer so its tiles survive. */
 .level-2 #scene-shift {
-  transition-delay: 0s, 0s, 300ms;
   transform: translateY(-720px);
-  opacity: 0;
-  visibility: hidden;
 }
 .level-2 #underwater {
   transition-delay: 0s;
   opacity: 1;
   visibility: visible;
-}
-.level-2 #scrim {
-  background: linear-gradient(90deg, rgba(4, 8, 18, 0.5), transparent 60%);
 }
 header {
   position: absolute;
@@ -351,7 +354,9 @@ svg.ico {
   position: absolute;
   left: 96px;
   top: 250px;
-  transition: opacity 160ms;
+  transition: opacity 200ms;
+  /* Rasterized once; a fresh layer per fade cost ~120ms on the TV. */
+  will-change: opacity;
 }
 #caption h1 {
   margin: 0;
@@ -359,7 +364,7 @@ svg.ico {
   line-height: 1;
   font-weight: 300;
   letter-spacing: -0.04em;
-  text-shadow: 0 2px 24px #0005;
+  text-shadow: 0 2px 10px #0006;
 }
 #caption p {
   margin: 14px 0 0;
@@ -434,6 +439,10 @@ svg.ico {
     transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 120ms ease-out;
   backface-visibility: visible;
+  /* Every face keeps one layer, so focus never restructures layers. Measured on the TV, a focus
+     step otherwise re-rasterized the rest of the track before its animation could start. The
+     focused face still re-rasterizes at its 1.12 scale, so it stays sharp. */
+  will-change: transform;
 }
 .face:after {
   content: '';
@@ -460,9 +469,8 @@ svg.ico {
   transform: scale(1.12);
   z-index: 1;
   background-color: rgba(255, 255, 255, 0.24);
-  box-shadow:
-    inset 0 0 0 1px #ffffff1f,
-    0 20px 32px -12px rgba(0, 0, 0, 0.55);
+  /* A live blur cost ~120ms per tile on the TV's CPU rasterizer; this is eight image blits. */
+  border-image: url(assets/focus-shadow.png) 80 / 80px / 40px stretch;
   transition:
     transform 280ms cubic-bezier(0.2, 0.9, 0.3, 1.25),
     opacity 120ms ease-out;
@@ -524,17 +532,9 @@ svg.ico {
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 100ms ease-out,
-    transform 100ms ease-out;
 }
 .tile.focus .app-label {
   opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity 200ms ease-out 60ms,
-    transform 260ms cubic-bezier(0.22, 1, 0.36, 1) 60ms;
 }
 .app-label + .hint {
   margin-top: 2px;
@@ -548,7 +548,6 @@ svg.ico {
   font-size: 26px;
   font-weight: 500;
   opacity: 0;
-  transition: opacity 120ms;
   white-space: nowrap;
   max-width: 340px;
   overflow: hidden;
@@ -659,16 +658,6 @@ svg.ico {
 .row.compact .track-scale {
   transform: scale(0.6282);
   opacity: 0.6;
-}
-.row.compact .hint {
-  opacity: 0;
-}
-.row.compact .face {
-  box-shadow: none;
-}
-.row.compact .face:before,
-.row.compact .face:after {
-  display: none;
 }
 .row.compact h2:before {
   content: '⌃';
@@ -1131,7 +1120,9 @@ body.overlay-open .bubble {
 #root[data-quality='4'] .waves {
   animation: none;
 }
-#root[data-quality='4'] .stars {
+#root[data-quality='4'] .stars,
+#root[data-quality='4'] .reflection,
+#root[data-quality='4'] .reflection2 {
   animation: none;
 }
 #root.reduce-motion * {
@@ -1253,12 +1244,6 @@ body.overlay-open .bubble {
   outline: 4px solid white;
   outline-offset: 3px;
 }
-.row.compact .sub {
-  font-size: 35px;
-}
-.row.compact .tile-name {
-  font-size: 38.2px;
-}
 .beams i:nth-child(2) {
   background: linear-gradient(180deg, rgba(244, 236, 212, 0.18), transparent);
 }
@@ -1375,7 +1360,9 @@ body.overlay-open .bubble {
 #root[data-quality='3'] .waves,
 #root[data-quality='4'] .cloud,
 #root[data-quality='4'] .waves,
-#root[data-quality='4'] .stars {
+#root[data-quality='4'] .stars,
+#root[data-quality='4'] .reflection,
+#root[data-quality='4'] .reflection2 {
   will-change: auto;
 }
 .ambient-on.scene-night #coast-scene {
@@ -1420,28 +1407,22 @@ body.paused .bubble {
   animation: rise-in 720ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
 }
 #root.intro .row {
-  animation: surface-in 520ms ease-out 160ms both;
+  animation: surface-in 520ms ease-out 220ms both;
 }
-#root.intro #row1 {
-  animation-delay: 240ms;
+#root.intro .row:not(.compact) .track-scale {
+  animation: rise-in 640ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both;
 }
-#root.intro #row0 .tile {
-  animation: rise-in 620ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+#root.intro #row1,
+#root.intro #row1 .track-scale {
+  animation-delay: 300ms;
 }
-#root.intro #row0 .tile:nth-child(2) {
-  animation-delay: 200ms;
-}
-#root.intro #row0 .tile:nth-child(3) {
-  animation-delay: 240ms;
-}
-#root.intro #row0 .tile:nth-child(4) {
-  animation-delay: 280ms;
-}
-#root.intro #row0 .tile:nth-child(5) {
-  animation-delay: 320ms;
-}
-#root.intro #row0 .tile:nth-child(n + 6) {
-  animation-delay: 360ms;
+#root.intro #row2,
+#root.intro #row3,
+#root.intro #row4,
+#root.intro #row2 .track-scale,
+#root.intro #row3 .track-scale,
+#root.intro #row4 .track-scale {
+  animation-delay: 380ms;
 }
 #ambient:not([hidden]) {
   animation: surface-in 600ms ease-out both;
@@ -1499,15 +1480,6 @@ body.paused .bubble {
 .spotify .app-artwork,
 .hbomax .app-artwork {
   padding: 30px;
-}
-
-.hbomax .app-artwork {
-  filter: invert(1);
-}
-
-/* The blurred focus shadow is the costliest focus paint; the fast mode keeps the flat lift. */
-#root.reduce-motion .tile.focus .face {
-  box-shadow: inset 0 0 0 1px #ffffff1f;
 }
 
 /* Static TV mode flattens frozen decoration into the scene layer. The scene and tracks keep
