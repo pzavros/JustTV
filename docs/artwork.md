@@ -8,3 +8,7 @@ Bundled logos are loaded locally; runtime navigation never fetches brand assets.
 Both remain trademarks of their respective owners. Asset hashes are pinned separately in `tests/fixtures/ui-assets.json`; historical fixtures remain unchanged.
 
 Spotify and HBO Max/Max get bundled artwork by their original catalogue names, so profile renames preserve the brand. HBO Max appears in favourites when native discovery finds it. The local preview adds a clearly synthetic catalogue identity, `DemoApp001.hbomax`, for UI review; no TV package identity or installation is invented.
+
+## Native icons
+
+Native and fallback raster icons are usually square, so `object-fit: contain` left them as a smaller square inside the 312×176 card. After an icon loads, `fitArtwork` in `views/home.js` draws it once into a 350×198 canvas, the focused card size. Transparent margins are trimmed. Opaque tiles fill the card height, and each row's outermost colour is extended to the card edges, so solid colours, gradients and rounded corners blend into the card. Transparent logos are trimmed and centered at up to 70% of the card height over the brand colour. Bundled SVG logos are unchanged. If the canvas is tainted, the original icon is kept. The 104 px bundled fallback icons still upscale softly; higher-resolution files would sharpen them.

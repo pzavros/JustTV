@@ -150,9 +150,10 @@ try {
     const edgeStorageWrites = await page.evaluate(() => window.perfStorageWrites);
     if (variant === 'dist') {
       assert.equal(edgeStorageWrites, 0, 'Repeated boundary presses must not write preferences');
-      assert.ok(edgeMutations <= 2, 'Boundary presses may only toggle the navigation pause class');
+      assert.ok(edgeMutations <= 2, 'Boundary presses may only toggle the navigation class');
+      // Frozen decoration is flattened; only the scene and the five row tracks keep layers.
       if (motion)
-        assert.equal(nav.willChange, 0, 'Reduced motion must release explicit layer hints');
+        assert.equal(nav.willChange, 6, 'Reduced motion keeps only scene and track layers');
     }
     await page.evaluate(() => {
       window.duplicateRefreshRebuilds = 0;

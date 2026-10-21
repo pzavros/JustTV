@@ -69,7 +69,7 @@ to loopback and does not connect to or deploy to the TV.
 
 App cards now use the full face for artwork, with the selected name beneath the card.
 Spotify and HBO Max use bundled logos (see [artwork sources](docs/artwork.md)).
-Apps without usable artwork get a centered wordmark; launcher shortcuts use large icons.
+Square or margined native icons are edge-extended to fill the card. Apps without usable artwork get a centered wordmark; launcher shortcuts use large icons.
 Row, focus and panel transitions are coordinated, and both the saved Reduce motion
 setting and the browser's reduced-motion preference disable them.
 

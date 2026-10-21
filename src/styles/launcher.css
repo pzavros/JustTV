@@ -407,8 +407,6 @@ svg.ico {
   gap: 36px;
   transform: translateX(0);
   transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.row.active .track {
   will-change: transform;
 }
 .tile {
@@ -445,7 +443,6 @@ svg.ico {
   z-index: 2;
   border-radius: inherit;
   opacity: 0;
-  transition: opacity 100ms ease-out;
   box-shadow: none;
   pointer-events: none;
 }
@@ -741,7 +738,9 @@ svg.ico {
 }
 body.overlay-open .motion,
 body.overlay-open #coast-scene,
-body.overlay-open #underwater * {
+body.overlay-open .beams,
+body.overlay-open .beams i,
+body.overlay-open .bubble {
   animation-play-state: paused !important;
 }
 .overlay-title {
@@ -1127,8 +1126,12 @@ body.overlay-open #underwater * {
 .reduce-motion .source-picker {
   transition: none !important;
 }
-.level-0 #underwater *,
-.level-1 #underwater * {
+.level-0 .beams,
+.level-0 .beams i,
+.level-0 .bubble,
+.level-1 .beams,
+.level-1 .beams i,
+.level-1 .bubble {
   animation-play-state: paused;
 }
 .level-2 #coast-scene,
@@ -1257,10 +1260,6 @@ body.overlay-open #underwater * {
 .panel {
   background: rgba(18, 22, 38, 0.91);
 }
-/* Promote only the focused face. */
-.tile.focus .face {
-  will-change: transform;
-}
 
 /* Raster layers are generated from the supplied SVG paths. No SVG paints per frame. */
 #coast-scene {
@@ -1373,14 +1372,11 @@ body.overlay-open #underwater * {
 .ambient-on .waves {
   margin-top: 200px;
 }
-body.paused #root * {
-  animation-play-state: paused !important;
-}
-
-/* Keep the compositor free for focus feedback while the remote is active. */
-#root.navigating .motion,
-#root.navigating #coast-scene,
-#root.navigating #underwater * {
+body.paused .motion,
+body.paused #coast-scene,
+body.paused .beams,
+body.paused .beams i,
+body.paused .bubble {
   animation-play-state: paused !important;
 }
 
@@ -1440,12 +1436,17 @@ body.paused #root * {
   filter: invert(1);
 }
 
-/* Static TV mode should not reserve compositor surfaces for frozen decoration. */
+/* Static TV mode flattens frozen decoration into the scene layer. The scene and tracks keep
+   their layers: without them every focus change repaints the full-screen artwork behind. */
 #root.reduce-motion .motion,
 #root.reduce-motion #coast-scene,
-#root.reduce-motion #scene-shift,
-#root.reduce-motion #underwater *,
-#root.reduce-motion .track,
-#root.reduce-motion .tile.focus .face {
+#root.reduce-motion .beams,
+#root.reduce-motion .beams i,
+#root.reduce-motion .bubble {
   will-change: auto;
+}
+
+/* Square icons are edge-extended to the card's shape once loaded (see views/home.js). */
+.appface.filled .app-artwork {
+  object-fit: cover;
 }
