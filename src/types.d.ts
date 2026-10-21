@@ -37,6 +37,7 @@ interface Preferences {
   active: number;
   profiles: Profile[];
   fastDefaults?: number;
+  fullMotion?: number;
 }
 interface HomeTile {
   id?: string;
@@ -126,4 +127,5 @@ interface LauncherState {
   focusedElement: HTMLElement | null;
   navMotionTimer: number;
   navigating: boolean;
+  introTimer: number;
 }

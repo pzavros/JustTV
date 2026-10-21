@@ -13,6 +13,21 @@ export function showToast(text) {
   }, 3000);
 }
 
+/** Staggered home entrance on boot and wake; ends early on the next key. */
+export function playIntro() {
+  endIntro();
+  if (state.activeProfile.motion) return;
+  root.classList.add('intro');
+  state.introTimer = setTimeout(endIntro, 1100);
+}
+
+export function endIntro() {
+  if (!state.introTimer) return;
+  clearTimeout(state.introTimer);
+  state.introTimer = 0;
+  root.classList.remove('intro');
+}
+
 export function fitCanvas() {
   state.canvasScale = Math.min(innerWidth / 1920, innerHeight / 1080);
   root.style.transform = 'scale(' + state.canvasScale + ')';

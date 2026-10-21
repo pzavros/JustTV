@@ -6,7 +6,7 @@ import { byId, platform, root, strings } from './environment.js';
 import { closeAllOverlays, closeOverlay, focusOverlay, navigateOverlay } from './overlays.js';
 import { focusHome, navigateHome } from './focus.js';
 import { activateHome, holdCurrent, launchApp, handleLaunchResult } from './actions.js';
-import { showToast } from './presentation.js';
+import { endIntro, showToast } from './presentation.js';
 import { openShortcuts } from './customization.js';
 import { openAbout, openControls } from './views/controls.js';
 import { openInputs } from './views/inputs.js';
@@ -90,6 +90,7 @@ export function handleKeyDown(e) {
     return;
   }
   scheduleIdle();
+  endIntro();
   if (state.wakeConsumed) {
     e.preventDefault();
     return;

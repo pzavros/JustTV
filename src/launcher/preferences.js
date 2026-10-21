@@ -22,16 +22,19 @@ export function loadPreferences() {
           sourceHidden: [],
           scene: 0,
           saver: 1,
-          motion: platform.tv,
+          motion: false,
           shortcuts: {}
         }
       ]
     };
-  if (platform.tv && !a.fastDefaults) {
+  // Full motion became the TV default once focus/scroll motion was compositor-only. This
+  // one-time step clears the earlier forced Reduce motion; scene quality stays at tier 4.
+  if (platform.tv && !a.fullMotion) {
     a.profiles.forEach(function (p) {
-      p.motion = true;
+      p.motion = false;
     });
     a.fastDefaults = 1;
+    a.fullMotion = 1;
   }
   state.preferences = a;
   state.preferences.active = Math.min(

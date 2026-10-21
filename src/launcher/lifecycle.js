@@ -7,7 +7,7 @@ import { focusHome } from './focus.js';
 import { handleVolumeResult, openAbout, openControls } from './views/controls.js';
 import { renderHome } from './views/home.js';
 import { loadPreferences } from './preferences.js';
-import { fitCanvas } from './presentation.js';
+import { fitCanvas, playIntro } from './presentation.js';
 import { escapeHtml } from './views/html.js';
 import { handleKeyDown, handleKeyUp } from './remote.js';
 import { browser } from '../browser.js';
@@ -38,7 +38,10 @@ export function handleVisibilityChange() {
     if (!document.hidden) queuePlatformRefresh(true);
   }, 100);
   // A Home launch routed to an already-running app returns to its top.
-  if (!state.activeOverlay) focusHome(0, state.homeFocus.last[0] || 0, true);
+  if (!state.activeOverlay) {
+    focusHome(0, state.homeFocus.last[0] || 0, true);
+    playIntro();
+  }
   schedulePlatformRefresh();
   if (!state.weather || Date.now() - state.weather.at > 1800000) fetchWeather();
 }
@@ -84,6 +87,8 @@ byId('end-message').innerHTML =
 byId('corner-hint').textContent = strings.holdOptions;
 
 renderHome();
+
+playIntro();
 
 updateClock();
 

@@ -3,6 +3,7 @@ import { state } from './state.js';
 import { byId, root, strings } from './environment.js';
 import { updateClock } from './weather.js';
 import { focusHome } from './focus.js';
+import { playIntro } from './presentation.js';
 
 /**
  * Idle scheduling and ambient wake; preserve focus and consume the wake key.
@@ -27,6 +28,7 @@ export function wake() {
   state.ambient = false;
   byId('ambient').hidden = true;
   root.classList.remove('ambient-on');
+  playIntro();
   focusHome(state.homeFocus.row, state.homeFocus.index, true);
   scheduleIdle();
   schedulePlatformRefresh();

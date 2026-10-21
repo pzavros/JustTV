@@ -183,7 +183,7 @@ export function openProfiles() {
             sourceHidden: [],
             scene: 0,
             saver: 1,
-            motion: platform.tv,
+            motion: false,
             shortcuts: {}
           });
           schedulePreferencesSave();

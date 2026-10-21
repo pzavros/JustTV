@@ -39,5 +39,6 @@ export const state = {
   lastActiveRow: -1,
   focusedElement: null,
   navMotionTimer: 0,
-  navigating: false
+  navigating: false,
+  introTimer: 0
 };

@@ -56,8 +56,8 @@ button:focus {
   height: 1440px;
   will-change: transform;
   transition:
-    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 240ms,
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 320ms,
     visibility 0s;
 }
 #coast-scene {
@@ -377,8 +377,8 @@ svg.ico {
   width: 1728px;
   transform-origin: 0 0;
   transition:
-    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 180ms,
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms,
     visibility 0s;
   z-index: 1;
 }
@@ -398,15 +398,15 @@ svg.ico {
 .track-scale {
   transform-origin: 0 0;
   transition:
-    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 180ms ease-out;
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease-out;
 }
 .track {
   display: flex;
   align-items: flex-start;
   gap: 36px;
   transform: translateX(0);
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 260ms cubic-bezier(0.25, 1, 0.5, 1);
   will-change: transform;
 }
 .tile {
@@ -431,9 +431,19 @@ svg.ico {
   box-shadow: inset 0 0 0 1px #ffffff1f;
   transform-origin: center;
   transition:
-    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 120ms ease-out;
   backface-visibility: visible;
+}
+.face:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%);
+  opacity: 0;
+  pointer-events: none;
 }
 .face:before {
   content: '';
@@ -450,12 +460,20 @@ svg.ico {
   transform: scale(1.12);
   z-index: 1;
   background-color: rgba(255, 255, 255, 0.24);
+  box-shadow:
+    inset 0 0 0 1px #ffffff1f,
+    0 20px 32px -12px rgba(0, 0, 0, 0.55);
+  transition:
+    transform 280ms cubic-bezier(0.2, 0.9, 0.3, 1.25),
+    opacity 120ms ease-out;
 }
-.tile.focus .face:before {
+.tile.focus .face:before,
+.tile.focus .face:after {
   opacity: 1;
 }
-.tile.pressed .face {
-  transform: scale(1.06);
+.tile.focus.pressed .face {
+  transform: scale(1.05);
+  transition: transform 90ms ease-out;
 }
 .appface {
   overflow: hidden;
@@ -506,14 +524,17 @@ svg.ico {
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateY(8px);
   transition:
-    opacity 120ms ease-out,
-    transform 160ms ease-out;
+    opacity 100ms ease-out,
+    transform 100ms ease-out;
 }
 .tile.focus .app-label {
   opacity: 1;
   transform: translateY(0);
+  transition:
+    opacity 200ms ease-out 60ms,
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1) 60ms;
 }
 .app-label + .hint {
   margin-top: 2px;
@@ -645,7 +666,8 @@ svg.ico {
 .row.compact .face {
   box-shadow: none;
 }
-.row.compact .face:before {
+.row.compact .face:before,
+.row.compact .face:after {
   display: none;
 }
 .row.compact h2:before {
@@ -782,12 +804,13 @@ body.overlay-open .bubble {
   transform: scaleY(0.846);
   transform-origin: bottom;
   transition:
-    transform 160ms,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 160ms;
 }
 .source-picker > * {
   transform: scaleY(1.182);
   transform-origin: center;
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .source-picker.focus {
   transform: scaleY(1);
@@ -1390,6 +1413,52 @@ body.paused .bubble {
 #overlay .menu-panel {
   animation: menu-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+#root.intro header {
+  animation: surface-in 480ms ease-out both;
+}
+#root.intro #caption {
+  animation: rise-in 720ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+}
+#root.intro .row {
+  animation: surface-in 520ms ease-out 160ms both;
+}
+#root.intro #row1 {
+  animation-delay: 240ms;
+}
+#root.intro #row0 .tile {
+  animation: rise-in 620ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+}
+#root.intro #row0 .tile:nth-child(2) {
+  animation-delay: 200ms;
+}
+#root.intro #row0 .tile:nth-child(3) {
+  animation-delay: 240ms;
+}
+#root.intro #row0 .tile:nth-child(4) {
+  animation-delay: 280ms;
+}
+#root.intro #row0 .tile:nth-child(5) {
+  animation-delay: 320ms;
+}
+#root.intro #row0 .tile:nth-child(n + 6) {
+  animation-delay: 360ms;
+}
+#ambient:not([hidden]) {
+  animation: surface-in 600ms ease-out both;
+}
+#ambient:not([hidden]) .clock {
+  animation: rise-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
 @keyframes surface-in {
   from {
     opacity: 0;
@@ -1434,6 +1503,11 @@ body.paused .bubble {
 
 .hbomax .app-artwork {
   filter: invert(1);
+}
+
+/* The blurred focus shadow is the costliest focus paint; the fast mode keeps the flat lift. */
+#root.reduce-motion .tile.focus .face {
+  box-shadow: inset 0 0 0 1px #ffffff1f;
 }
 
 /* Static TV mode flattens frozen decoration into the scene layer. The scene and tracks keep

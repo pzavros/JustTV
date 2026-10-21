@@ -28,7 +28,7 @@ Budgets are tightened to 29,800 B for app.js, 5,200 B for platform.js and 22,000
 - A home rebuild cancels the prior navigation-pause timeout and clears its class, preventing stale paused decoration after refresh.
 - Duplicate overridden CSS declarations and unused SVG scene palettes/rules are removed; the visible artwork, focus scale, 150ms focus, 180ms scroll and 300ms row/scene timings remain intact.
 
-TV defaults remain conservative: scene quality 4 and the existing saved/default Reduce motion setting. No preference migration or installed app identity was changed.
+TV defaults remain conservative: scene quality 4. (The Reduce motion default later changed; see the motion pass below.) No preference migration or installed app identity was changed.
 
 ## Reproducible local measurements
 
@@ -67,3 +67,13 @@ This pass raises the app.js budget to 31,200 B (+1.3 KB) for artwork fitting. CS
 - Native icons with a square or margined shape are fitted to the wide card once per icon URL; see [artwork](artwork.md). Rebuilds reuse the fitted image, so cards do not flash the letterboxed original.
 
 Local diagnostic: an 18-key navigation run used headless Chrome with software raster at 6× CPU slowdown, reporting the median of three runs. In reduced motion (the TV default), raster time fell from 154 ms to 115 ms and style-recalculated elements from 2,265 to 847. Whole-document recalculations fell from six to two. In full motion, rasterized tiles fell from 1,646 to 1,366. Returning from a compact row is pixel-identical to the initial row, so the persistent track layers do not blur. These numbers are single-machine diagnostics, not TV measurements.
+
+## Follow-up: motion pass
+
+Motion was retuned to feel quicker and more physical, using only transform and opacity. CSS grows to 23,278 B (budget 23,400 B); app.js grows by about 170 B.
+
+- Focus lifts with a 280ms spring that overshoots slightly, then settles in 200ms. The focused card gains a top-lit gloss and a soft shadow. Pressing OK dips it to 1.05× before it springs back. The selected name follows 60ms after the card.
+- Tracks glide in 260ms with an ease-out that starts fast. Rows and compact scaling take 380ms. The scene trails at 560ms, giving parallax depth on level changes. Inputs pickers use the same curve.
+- The home has a staggered entrance at boot, on return from an app and after waking from ambient mode. It lasts about one second. Any key ends it immediately, so input is never delayed. Ambient mode fades in with a rising clock.
+- Reduce motion disables all of the above. It also drops the blurred focus shadow, the costliest focus paint, so the TV default matches the previous build's raster cost (118 ms vs 127 ms in the 18-key software-raster diagnostic). In full motion, rasterized tiles fell from 1,358 to 1,118. Style work per run rose by about a third because transitions run longer.
+- Full motion is now the TV default. New profiles start with Reduce motion off. A one-time `fullMotion` migration clears the Reduce motion setting that `fastDefaults` previously forced on every TV profile. Afterwards the toggle is the user's again, and a later choice to turn it on is kept. Scene quality stays at tier 4, so the camera, cloud, wave and star animations remain frozen on the TV, and the frame sampler stays off. Only focus, scrolling, row, entrance and overlay motion runs.

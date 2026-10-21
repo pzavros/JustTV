@@ -224,11 +224,11 @@ export async function verifyTierFourSampling(browser, origin, variant) {
     assert.equal(await page.evaluate(() => Coast.metrics.frames.length), 0);
     assert.equal(
       await page
-        .locator('.face')
+        .locator('.tile:not(.focus) .face')
         .first()
         .evaluate((face) => getComputedStyle(face).transitionDuration.split(',')[0]),
-      '0.15s',
-      'Focus timing stays unchanged'
+      '0.2s',
+      'Quality 4 keeps the full focus motion'
     );
   } finally {
     await context.close();
